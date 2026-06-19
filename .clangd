@@ -1,0 +1,8 @@
+CompileFlags:
+  Add:
+    - -IC:/Users/47sok/Programs/ucrt64/include
+    - --target=x86_64-w64-windows-gnu
+    - --gcc-toolchain=C:/Users/47sok/Programs/ucrt64
+    - -IC:/Users/47sok/Programs/ucrt64/include
+    - -IC:/Users/47sok/Programs/ucrt64/include/c++/15.3.0
+    - -IC:/Users/47sok/Programs/ucrt64/include/c++/15.3.0/x86_64-w64-mingw32
