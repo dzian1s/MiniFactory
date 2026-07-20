@@ -1,6 +1,6 @@
 #pragma once
 #include <memory>
-#include "Screen.h"
+#include "screens/Screen.h"
 
 class Screen;
 
@@ -14,5 +14,5 @@ private:
     void update(float dt);
 
 private:
-    std::unique_ptr<Screen> playScreen;
+    std::unique_ptr<Screen> currentScreen;
 };

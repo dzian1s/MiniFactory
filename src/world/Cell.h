@@ -1,4 +1,5 @@
 #pragma once
+#include "Types.h"
 
 struct GridPosition
 {
@@ -9,4 +10,5 @@ struct GridPosition
 struct Cell 
 {
     GridPosition position;
+    TileType tileType = TileType::EMPTY;
 };

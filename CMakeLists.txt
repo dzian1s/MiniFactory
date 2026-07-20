@@ -7,10 +7,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(MiniFactory
     src/main.cpp
-    src/Game.cpp
-    src/Screen.cpp
-    src/ScreenObject.cpp
-    src/World.cpp
+    src/app/Game.cpp
+    src/screens/GameScreen.cpp
+    src/screens/MenuScreen.cpp
+    src/obj/ScreenObject.cpp
+    src/world/World.cpp
 )
 
 target_link_libraries(MiniFactory PRIVATE raylib)
+
+target_include_directories(MiniFactory PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)

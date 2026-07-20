@@ -1,9 +1,9 @@
-#include "Screen.h"
+#include "GameScreen.h"
 #include "Config.h"
 #include "raylib.h"
 #include <memory>
 
-void Screen::render()
+void GameScreen::render() const
 { 
     DrawText("Mini Factory", 300, 280, 30, DARKGRAY);
     if (obj != nullptr)
@@ -13,19 +13,19 @@ void Screen::render()
     world.render();
 }
 
-void Screen::setScreenObject(Rectangle rect, Color color)
+void GameScreen::setScreenObject(Rectangle rect, Color color)
 {
     obj = std::make_unique<ScreenObject>(rect, color);
 }
 
-void Screen::update(float dt)
+Screen::Type GameScreen::update(float dt)
 {
     if (obj != nullptr) obj->update(dt);
+
+    return Screen::Type::None;
 }
 
-Screen::Screen()
+GameScreen::GameScreen()
     :world(WORLD_WIDTH, WORLD_HEIGHT)
 {
 }
-
-

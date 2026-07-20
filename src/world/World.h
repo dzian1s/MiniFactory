@@ -10,7 +10,7 @@ public:
     World(int width, int height);
 
     void update (float dt);
-    void render();
+    void render() const;
 
 private:
     int width;
@@ -19,7 +19,10 @@ private:
     std::vector<Cell> cells;
 
 private:
-    Cell& getCell(int x, int y);
+    Cell& getCell(int x, int y) ;
+    const Cell& getCell(int x, int y) const;
+
     GridPosition screenToGrid(Vector2 screenPos) const;
     bool isInside(GridPosition position) const;
+    void createCells();
 };

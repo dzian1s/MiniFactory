@@ -18,13 +18,13 @@ void World::update(float dt)
 
 }
 
-void World::render()
+void World::render() const
 {
     for (int y = 0; y < height; y++)
     {
         for (int x = 0; x < width; x++)
         {
-            Cell& cell = getCell(x, y);
+            const Cell& cell = getCell(x, y);
 
             int screenX = cell.position.x * TILE_SIZE;
             int screenY = cell.position.y * TILE_SIZE;
@@ -54,9 +54,14 @@ void World::render()
     }
 }
 
-Cell& World::getCell(int x, int y)
+Cell& World::getCell(int x, int y) 
 {
     return cells[y * width + x];
+}
+
+const Cell& World::getCell(int x, int y) const
+{
+    return cells [y * width + x];
 }
 
 GridPosition World::screenToGrid(Vector2 screenPos) const
@@ -74,4 +79,15 @@ bool World::isInside(GridPosition position) const
            position.y >= 0 &&
            position.x < width &&
            position.y < height;
+}
+
+void World::createCells()
+{
+    for (int y = 0; y < height; y++)
+    {
+        for (int x = 0; x < width; x++)
+        {    
+            
+        }
+    }
 }
