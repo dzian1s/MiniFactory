@@ -1,5 +1,17 @@
 #pragma once
-#include "Types.h"
+
+enum class TileType
+{
+    Grass,
+    Stone,
+    Water,
+    Iron,
+};
+
+enum class ResourceType
+{
+    None,
+};
 
 struct GridPosition
 {
@@ -10,5 +22,9 @@ struct GridPosition
 struct Cell 
 {
     GridPosition position;
-    TileType tileType = TileType::EMPTY;
+
+    TileType tileType = TileType::Grass;
+    ResourceType resourceType = ResourceType::None;
+
+    int resourceAmount = 0;
 };

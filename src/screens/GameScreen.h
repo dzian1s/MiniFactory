@@ -1,8 +1,7 @@
 #pragma once
 
-#include <memory>
 #include <raylib.h>
-#include "obj/ScreenObject.h"
+#include "obj/Player.h"
 #include "world/World.h"
 #include "Screen.h"
 
@@ -13,9 +12,8 @@ public:
 
     Screen::Type update(float dt) override;
     void render() const override;
-    void setScreenObject(Rectangle rect, Color color);
-
+    
 private:
-    std::unique_ptr<ScreenObject> obj;
+    Player player;
     World world;
 };

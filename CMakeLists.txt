@@ -10,7 +10,7 @@ add_executable(MiniFactory
     src/app/Game.cpp
     src/screens/GameScreen.cpp
     src/screens/MenuScreen.cpp
-    src/obj/ScreenObject.cpp
+    src/obj/Player.cpp
     src/world/World.cpp
 )
 

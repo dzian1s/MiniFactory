@@ -8,14 +8,42 @@ World::World(int width, int height)
     , height(height)
     , cells (width*height)
 {
+    createCells();
+    generateMap();
+
+}
+
+void World::createCells()
+{
+    Image noise = GenImagePerlinNoise(width, height, 0, 0, 4.0f);
+    Color* pixels = LoadImageColors(noise)  ;
+
     for (int y = 0; y < height; y++)
+    {
         for (int x = 0; x < width; x++)
-           getCell(x, y).position = {x, y}; 
+        {
+            Cell& cell = getCell(x, y);
+
+            cell.position = {x, y};
+
+            const Color noiseColor = pixels[y*width + x];
+            const float value = noiseColor.r / 255.0f;
+
+            if(value < 0.35f)
+                cell.tileType = TileType::Water;
+            else if (value > 0.75f)
+                cell.tileType = TileType::Stone;
+            else 
+                cell.tileType = TileType::Grass;
+        }
+    }
+
+    UnloadImageColors(pixels);
+    UnloadImage(noise);
 }
 
 void World::update(float dt)
 {
-
 }
 
 void World::render() const
@@ -28,8 +56,29 @@ void World::render() const
 
             int screenX = cell.position.x * TILE_SIZE;
             int screenY = cell.position.y * TILE_SIZE;
+            
+            Color cellColor = LIGHTGRAY;
 
-            DrawRectangle(screenX, screenY, TILE_SIZE, TILE_SIZE, LIGHTGRAY);
+            switch (cell.tileType) 
+            {
+                case TileType::Grass:
+                    cellColor = DARKGREEN;
+                    break;
+
+                case TileType::Iron:
+                    cellColor = BEIGE;
+                    break;
+
+                case TileType::Stone:
+                    cellColor = DARKGRAY;
+                    break;    
+
+                case TileType::Water:
+                    cellColor = BLUE;
+                    break;
+            }
+
+            DrawRectangle(screenX, screenY, TILE_SIZE, TILE_SIZE, cellColor);
             DrawRectangleLines(screenX, screenY, TILE_SIZE, TILE_SIZE, GRAY);
         }
     }
@@ -81,13 +130,32 @@ bool World::isInside(GridPosition position) const
            position.y < height;
 }
 
-void World::createCells()
+void World::generateMap()
 {
-    for (int y = 0; y < height; y++)
+    for(int y = 0; y < height; y++ )
     {
         for (int x = 0; x < width; x++)
-        {    
-            
+        {
+            Cell& cell = getCell(x, y);
+
+            const int value = GetRandomValue(0, 99);
+
+            if (value < 10)
+            {
+                cell.tileType = TileType::Iron;
+            }
+            else if (value < 30)
+            {
+                cell.tileType = TileType::Stone;
+            }
+            else if (value < 70)
+            {
+                cell.tileType = TileType::Grass;
+            }
+            else
+            {
+                cell.tileType = TileType::Water;
+            }
         }
     }
 }

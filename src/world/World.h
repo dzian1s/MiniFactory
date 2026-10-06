@@ -25,4 +25,5 @@ private:
     GridPosition screenToGrid(Vector2 screenPos) const;
     bool isInside(GridPosition position) const;
     void createCells();
+    void generateMap();
 };
