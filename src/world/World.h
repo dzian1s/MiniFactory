@@ -3,26 +3,27 @@
 #include <raylib.h>
 #include <vector>
 #include "Cell.h"
+#include "Chunk.h" 
 
 class World
 {
 public:
-    World(int width, int height);
+    World(int widthInChunks, int heightInChunks);
 
     void update (float dt);
-    void render() const;
+    void render(const Camera2D& camera) const;
+    Cell* tryGetCell(GridPosition position);
+    const Cell* tryGetCell(GridPosition position) const;
+    bool isWalkable (GridPosition position) const;
 
 private:
-    int width;
-    int height;
+    int widthInChunks;
+    int heightInChunks;
 
-    std::vector<Cell> cells;
+    std::vector<Chunk> chunks;
 
 private:
-    Cell& getCell(int x, int y) ;
-    const Cell& getCell(int x, int y) const;
-
-    GridPosition screenToGrid(Vector2 screenPos) const;
+    GridPosition screenToGrid(Vector2 screenPos, const Camera2D& camera) const;
     bool isInside(GridPosition position) const;
     void createCells();
     void generateMap();

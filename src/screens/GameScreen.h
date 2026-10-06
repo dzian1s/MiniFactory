@@ -14,6 +14,7 @@ public:
     void render() const override;
     
 private:
-    Player player;
     World world;
+    Player player;
+    Camera2D camera;
 };

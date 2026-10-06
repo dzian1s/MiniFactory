@@ -4,4 +4,4 @@ class WorldGenerator
         explicit WorldGenerator(unsigned int seed);
 
         Cell generateCell
-}
+

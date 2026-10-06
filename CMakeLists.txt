@@ -12,6 +12,7 @@ add_executable(MiniFactory
     src/screens/MenuScreen.cpp
     src/obj/Player.cpp
     src/world/World.cpp
+    src/world/Chunk.cpp
 )
 
 target_link_libraries(MiniFactory PRIVATE raylib)

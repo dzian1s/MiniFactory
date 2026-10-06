@@ -1,97 +1,44 @@
 #include "World.h"
 #include "Cell.h"
 #include "Config.h"
+#include "world/Chunk.h"
 #include <raylib.h>
 
-World::World(int width, int height)
-    : width(width)
-    , height(height)
-    , cells (width*height)
+World::World(int widthInChunks, int heightInChunks)
+    : widthInChunks(widthInChunks)
+    , heightInChunks(heightInChunks)
 {
-    createCells();
-    generateMap();
+    chunks.reserve(widthInChunks * heightInChunks);
 
-}
-
-void World::createCells()
-{
-    Image noise = GenImagePerlinNoise(width, height, 0, 0, 4.0f);
-    Color* pixels = LoadImageColors(noise)  ;
-
-    for (int y = 0; y < height; y++)
+    for(int y = 0; y < heightInChunks; ++y)
     {
-        for (int x = 0; x < width; x++)
+        for(int x = 0; x < widthInChunks; ++x)
         {
-            Cell& cell = getCell(x, y);
-
-            cell.position = {x, y};
-
-            const Color noiseColor = pixels[y*width + x];
-            const float value = noiseColor.r / 255.0f;
-
-            if(value < 0.35f)
-                cell.tileType = TileType::Water;
-            else if (value > 0.75f)
-                cell.tileType = TileType::Stone;
-            else 
-                cell.tileType = TileType::Grass;
+            chunks.emplace_back(x, y);
         }
     }
-
-    UnloadImageColors(pixels);
-    UnloadImage(noise);
 }
 
 void World::update(float dt)
 {
 }
 
-void World::render() const
+void World::render(const Camera2D& camera) const
 {
-    for (int y = 0; y < height; y++)
+    for (const Chunk& chunk : chunks)
     {
-        for (int x = 0; x < width; x++)
-        {
-            const Cell& cell = getCell(x, y);
-
-            int screenX = cell.position.x * TILE_SIZE;
-            int screenY = cell.position.y * TILE_SIZE;
-            
-            Color cellColor = LIGHTGRAY;
-
-            switch (cell.tileType) 
-            {
-                case TileType::Grass:
-                    cellColor = DARKGREEN;
-                    break;
-
-                case TileType::Iron:
-                    cellColor = BEIGE;
-                    break;
-
-                case TileType::Stone:
-                    cellColor = DARKGRAY;
-                    break;    
-
-                case TileType::Water:
-                    cellColor = BLUE;
-                    break;
-            }
-
-            DrawRectangle(screenX, screenY, TILE_SIZE, TILE_SIZE, cellColor);
-            DrawRectangleLines(screenX, screenY, TILE_SIZE, TILE_SIZE, GRAY);
-        }
+        chunk.render();
     }
 
     const auto mousePos = GetMousePosition();
-    const auto hoveredCell = screenToGrid(mousePos);
+    const auto hoveredCell = screenToGrid(mousePos, camera);
 
     if (isInside(hoveredCell))
     {
         const int screenX = hoveredCell.x * TILE_SIZE;
         const int screenY = hoveredCell.y * TILE_SIZE;
 
-        Rectangle highlightedCell = 
+        Rectangle highlightedCell =
         {
             static_cast<float>(screenX),
             static_cast<float>(screenY),
@@ -103,22 +50,13 @@ void World::render() const
     }
 }
 
-Cell& World::getCell(int x, int y) 
+GridPosition World::screenToGrid(Vector2 screenPos, const Camera2D& camera) const
 {
-    return cells[y * width + x];
-}
-
-const Cell& World::getCell(int x, int y) const
-{
-    return cells [y * width + x];
-}
-
-GridPosition World::screenToGrid(Vector2 screenPos) const
-{
+    const Vector2 worldPos = GetScreenToWorld2D(screenPos, camera);
     return 
     {
-        static_cast<int>(screenPos.x)/TILE_SIZE,
-        static_cast<int>(screenPos.y)/TILE_SIZE
+        static_cast<int>(worldPos.x)/TILE_SIZE,
+        static_cast<int>(worldPos.y)/TILE_SIZE
     };
 }
 
@@ -126,36 +64,48 @@ bool World::isInside(GridPosition position) const
 {
     return position.x >= 0 &&
            position.y >= 0 &&
-           position.x < width &&
-           position.y < height;
+           position.x < widthInChunks * CHUNK_SIZE &&
+           position.y < heightInChunks * CHUNK_SIZE;
 }
 
-void World::generateMap()
+Cell* World::tryGetCell(GridPosition position)
 {
-    for(int y = 0; y < height; y++ )
-    {
-        for (int x = 0; x < width; x++)
-        {
-            Cell& cell = getCell(x, y);
+    if (!isInside(position))
+        return nullptr;
 
-            const int value = GetRandomValue(0, 99);
+    const int chunkX = position.x / CHUNK_SIZE;
+    const int chunkY = position.y / CHUNK_SIZE;
 
-            if (value < 10)
-            {
-                cell.tileType = TileType::Iron;
-            }
-            else if (value < 30)
-            {
-                cell.tileType = TileType::Stone;
-            }
-            else if (value < 70)
-            {
-                cell.tileType = TileType::Grass;
-            }
-            else
-            {
-                cell.tileType = TileType::Water;
-            }
-        }
-    }
+    const int localX = position.x % CHUNK_SIZE;
+    const int localY = position.y % CHUNK_SIZE;
+
+    Chunk& chunk = chunks[chunkY * widthInChunks + chunkX];
+
+    return &chunk.getCell(localX, localY);
+}
+
+const Cell* World::tryGetCell(GridPosition position) const
+{
+    if (!isInside(position))
+        return nullptr;
+
+    const int chunkX = position.x / CHUNK_SIZE;
+    const int chunkY = position.y / CHUNK_SIZE;
+
+    const int localX = position.x % CHUNK_SIZE;
+    const int localY = position.y % CHUNK_SIZE;
+
+    const Chunk& chunk = chunks[chunkY * widthInChunks + chunkX];
+
+    return &chunk.getCell(localX, localY);
+}
+
+bool World::isWalkable(GridPosition position) const
+{
+    const Cell* cell = tryGetCell(position);
+
+    if (cell == nullptr) return false;
+
+    return cell -> tileType != TileType::Water &&
+        cell -> tileType != TileType::Stone;
 }
